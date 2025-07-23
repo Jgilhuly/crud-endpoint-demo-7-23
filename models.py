@@ -1,5 +1,5 @@
 """Pydantic models for product data structures."""
-from typing import Optional, List
+from typing import Optional, List, Generic, TypeVar
 from datetime import datetime
 
 from pydantic import BaseModel
@@ -35,3 +35,23 @@ class ProductUpdate(BaseModel):
     category: Optional[str] = None
     tags: Optional[List[str]] = None
     in_stock: Optional[bool] = None
+
+
+class PaginationParams(BaseModel):
+    """Model for pagination parameters."""
+    page: int = 1
+    limit: int = 10
+
+
+T = TypeVar('T')
+
+
+class PaginatedResponse(BaseModel, Generic[T]):
+    """Generic model for paginated responses."""
+    items: List[T]
+    total: int
+    page: int
+    limit: int
+    total_pages: int
+    has_next: bool
+    has_prev: bool
