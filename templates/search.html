@@ -102,28 +102,9 @@
                 <h5 class="mb-0">Search Results</h5>
                 <small class="text-muted">Found {{ products|length }} product(s)</small>
             </div>
-            <div class="btn-group" role="group">
-                <button type="button" class="btn btn-outline-secondary btn-sm" id="gridView">
-                    <i class="fas fa-th"></i> Grid
-                </button>
-                <button type="button" class="btn btn-outline-secondary btn-sm" id="listView">
-                    <i class="fas fa-list"></i> List
-                </button>
-            </div>
         </div>
         
-        <!-- Available Tags (Quick Filters) -->
-        {% if all_tags %}
-        <div class="mb-3">
-            <small class="text-muted">Quick tag filters:</small><br>
-            {% for tag in all_tags %}
-            <button type="button" class="btn btn-outline-primary btn-sm me-1 mb-1 tag-filter" 
-                    data-tag="{{ tag }}">
-                {{ tag }}
-            </button>
-            {% endfor %}
-        </div>
-        {% endif %}
+
         
         <!-- Search Results -->
         <div id="resultsContainer">
@@ -169,43 +150,7 @@
                 {% endfor %}
             </div>
             
-            <!-- List View (hidden by default) -->
-            <div class="d-none" id="listResults">
-                <div class="list-group">
-                    {% for product in products %}
-                    <div class="list-group-item product-card">
-                        <div class="d-flex w-100 justify-content-between align-items-start">
-                            <div class="flex-grow-1">
-                                <h5 class="mb-1">{{ product.name }}</h5>
-                                <p class="mb-1">{{ product.description }}</p>
-                                <div class="mb-2">
-                                    <span class="badge bg-primary">{{ product.category }}</span>
-                                    {% if product.in_stock %}
-                                    <span class="badge bg-success">In Stock</span>
-                                    {% else %}
-                                    <span class="badge bg-danger">Out of Stock</span>
-                                    {% endif %}
-                                    {% for tag in product.tags %}
-                                    <span class="badge bg-secondary me-1">{{ tag }}</span>
-                                    {% endfor %}
-                                </div>
-                                <small class="text-muted">Created: {{ product.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
-                            </div>
-                            <div class="text-end">
-                                <h5 class="text-primary mb-2">${{ "%.2f"|format(product.price) }}</h5>
-                                <div class="btn-group">
-                                    <a href="/products/{{ product.id }}/edit" class="btn btn-outline-primary btn-sm">Edit</a>
-                                    <form method="POST" action="/products/{{ product.id }}/delete" class="d-inline" 
-                                          onsubmit="return confirm('Are you sure you want to delete this product?')">
-                                        <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
+
             {% else %}
             <div class="text-center py-5">
                 <i class="fas fa-search fa-3x text-muted mb-3"></i>
@@ -219,48 +164,10 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // View toggle functionality
-    const gridView = document.getElementById('gridView');
-    const listView = document.getElementById('listView');
-    const gridResults = document.getElementById('gridResults');
-    const listResults = document.getElementById('listResults');
-    
-    gridView.addEventListener('click', function() {
-        gridResults.classList.remove('d-none');
-        listResults.classList.add('d-none');
-        gridView.classList.add('active');
-        listView.classList.remove('active');
-    });
-    
-    listView.addEventListener('click', function() {
-        listResults.classList.remove('d-none');
-        gridResults.classList.add('d-none');
-        listView.classList.add('active');
-        gridView.classList.remove('active');
-    });
-    
-    // Set initial active state
-    gridView.classList.add('active');
-    
     // Clear filters functionality
     document.getElementById('clearFilters').addEventListener('click', function() {
         document.getElementById('searchForm').reset();
         window.location.href = '/search';
-    });
-    
-    // Tag filter functionality
-    document.querySelectorAll('.tag-filter').forEach(button => {
-        button.addEventListener('click', function() {
-            const tag = this.dataset.tag;
-            const tagsInput = document.getElementById('tags');
-            const currentTags = tagsInput.value.split(',').map(t => t.trim()).filter(t => t);
-            
-            if (!currentTags.includes(tag)) {
-                currentTags.push(tag);
-                tagsInput.value = currentTags.join(', ');
-                document.getElementById('searchForm').submit();
-            }
-        });
     });
     
     // Real-time search functionality
