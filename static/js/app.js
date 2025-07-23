@@ -62,26 +62,53 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Search functionality (if needed in the future)
-    const searchInput = document.querySelector('#search');
-    if (searchInput) {
-        searchInput.addEventListener('input', function() {
+    // Enhanced search functionality
+    const searchInput = document.querySelector('#query');
+    const quickSearchInput = document.querySelector('input[name="query"]');
+    
+    // Real-time search for quick search bar
+    if (quickSearchInput && window.location.pathname === '/') {
+        quickSearchInput.addEventListener('input', function() {
             const searchTerm = this.value.toLowerCase();
-            const cards = document.querySelectorAll('.card');
+            const cards = document.querySelectorAll('.product-card');
             
             cards.forEach(card => {
-                const title = card.querySelector('.card-title').textContent.toLowerCase();
-                const description = card.querySelector('.card-text').textContent.toLowerCase();
-                const category = card.querySelector('.badge.bg-primary').textContent.toLowerCase();
+                const title = card.querySelector('.card-title')?.textContent.toLowerCase() || '';
+                const description = card.querySelector('.card-text')?.textContent.toLowerCase() || '';
+                const category = card.querySelector('.badge.bg-primary')?.textContent.toLowerCase() || '';
+                const tags = Array.from(card.querySelectorAll('.badge.bg-secondary')).map(badge => badge.textContent.toLowerCase()).join(' ');
                 
                 if (title.includes(searchTerm) || 
                     description.includes(searchTerm) || 
-                    category.includes(searchTerm)) {
+                    category.includes(searchTerm) ||
+                    tags.includes(searchTerm)) {
                     card.style.display = 'block';
+                    card.style.opacity = '1';
                 } else {
                     card.style.display = 'none';
+                    card.style.opacity = '0.5';
                 }
             });
+            
+            // Show/hide "no results" message
+            const visibleCards = document.querySelectorAll('.product-card[style*="display: block"], .product-card:not([style*="display: none"])');
+            updateResultsCounter(visibleCards.length);
+        });
+    }
+    
+    // Auto-submit search form on input changes (debounced)
+    if (searchInput) {
+        let searchTimeout;
+        const form = searchInput.closest('form');
+        
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                if (this.value.length >= 2 || this.value.length === 0) {
+                    // Optional: auto-submit for better UX
+                    // form.submit();
+                }
+            }, 500);
         });
     }
 
@@ -106,4 +133,49 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Expose showToast globally for potential use
     window.showToast = showToast;
+    
+    // Helper function to update results counter
+    function updateResultsCounter(count) {
+        const counter = document.querySelector('.results-counter');
+        if (counter) {
+            counter.textContent = `Found ${count} product(s)`;
+        }
+    }
+    
+    // API helper functions for search
+    window.searchAPI = {
+        async searchProducts(params) {
+            const queryString = new URLSearchParams(params).toString();
+            try {
+                const response = await fetch(`/api/search?${queryString}`);
+                return await response.json();
+            } catch (error) {
+                console.error('Search API error:', error);
+                showToast('Search failed. Please try again.', 'danger');
+                return [];
+            }
+        },
+        
+        async getCategories() {
+            try {
+                const response = await fetch('/api/categories');
+                const data = await response.json();
+                return data.categories;
+            } catch (error) {
+                console.error('Categories API error:', error);
+                return [];
+            }
+        },
+        
+        async getTags() {
+            try {
+                const response = await fetch('/api/tags');
+                const data = await response.json();
+                return data.tags;
+            } catch (error) {
+                console.error('Tags API error:', error);
+                return [];
+            }
+        }
+    };
 }); 

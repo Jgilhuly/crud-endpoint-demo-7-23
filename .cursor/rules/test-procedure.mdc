@@ -1,0 +1,4 @@
+---
+alwaysApply: true
+---
+Whenever you make changes to the api files, run tests to ensure the changes are working as expected. Deploy the api locally for these tests.

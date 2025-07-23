@@ -1,45 +1,9 @@
-/* Custom styles for Product CRUD Demo */
+/* Custom CSS for Product Search Application */
 
-body {
-    background-color: #f8f9fa;
-}
-
-.card {
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    border: 1px solid rgba(0, 0, 0, 0.125);
-    transition: box-shadow 0.15s ease-in-out;
-}
-
-.card:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
-
-.card-title {
-    color: #495057;
-    font-weight: 600;
-}
-
-.badge {
-    font-size: 0.75em;
-}
-
-.form-control:focus,
-.form-select:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
-}
-
-.btn {
-    border-radius: 0.375rem;
-}
-
-.navbar-brand {
-    font-weight: 600;
-}
-
-/* Custom animations */
+/* Animation for cards */
 .fade-in {
-    animation: fadeIn 0.5s ease-in;
+    animation: fadeIn 0.5s ease-in-out forwards;
+    opacity: 0;
 }
 
 @keyframes fadeIn {
@@ -53,41 +17,194 @@ body {
     }
 }
 
-/* Responsive adjustments */
+/* Search form enhancements */
+.search-form {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Product card hover effects */
+.product-card .card {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.product-card .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+/* Search highlight */
+.search-highlight {
+    background-color: #fff3cd;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+/* Tag filter buttons */
+.tag-filter {
+    transition: all 0.2s ease-in-out;
+}
+
+.tag-filter:hover {
+    transform: scale(1.05);
+}
+
+/* Price display */
+.price {
+    font-size: 1.2em;
+    font-weight: 600;
+}
+
+/* Search results counter */
+.results-counter {
+    color: #6c757d;
+    font-size: 0.9em;
+}
+
+/* Loading state */
+.loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* Custom button styles */
+.btn-search {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    border: none;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.btn-search:hover {
+    background: linear-gradient(45deg, #0056b3, #004085);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,123,255,0.3);
+}
+
+/* View toggle buttons */
+.view-toggle .btn {
+    border-radius: 0;
+}
+
+.view-toggle .btn:first-child {
+    border-top-left-radius: 0.375rem;
+    border-bottom-left-radius: 0.375rem;
+}
+
+.view-toggle .btn:last-child {
+    border-top-right-radius: 0.375rem;
+    border-bottom-right-radius: 0.375rem;
+}
+
+.view-toggle .btn.active {
+    background-color: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+/* List view styles */
+.list-group-item {
+    border: none;
+    border-radius: 8px !important;
+    margin-bottom: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: all 0.2s ease-in-out;
+}
+
+.list-group-item:hover {
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    transform: translateY(-2px);
+}
+
+/* Quick search bar */
+.quick-search {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    color: white;
+}
+
+.quick-search::placeholder {
+    color: rgba(255,255,255,0.8);
+}
+
+.quick-search:focus {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    box-shadow: 0 0 15px rgba(102,126,234,0.4);
+    color: white;
+}
+
+/* Badge styles */
+.badge {
+    font-size: 0.75em;
+    padding: 0.35em 0.65em;
+}
+
+/* No results state */
+.no-results {
+    color: #6c757d;
+    text-align: center;
+    padding: 3rem 0;
+}
+
+.no-results i {
+    opacity: 0.5;
+    margin-bottom: 1rem;
+}
+
+/* Responsive improvements */
 @media (max-width: 768px) {
-    .card-body {
-        padding: 1rem;
+    .search-form {
+        padding: 15px;
     }
     
     .d-flex.gap-2 {
         flex-direction: column;
+        gap: 0.5rem !important;
     }
     
-    .d-flex.gap-2 .btn {
-        margin-bottom: 0.5rem;
+    .btn-group {
+        flex-direction: column;
+    }
+    
+    .view-toggle {
+        justify-content: center;
     }
 }
 
-/* Price styling */
-.text-primary {
-    font-size: 1.1em;
-    font-weight: 600;
+/* Smooth transitions for all interactive elements */
+* {
+    transition: box-shadow 0.2s ease-in-out;
 }
 
-/* Tag styling */
-.badge.bg-secondary {
-    background-color: #6c757d !important;
+/* Focus states */
+.form-control:focus,
+.form-select:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
 }
 
-/* Form validation styling */
-.form-control.is-invalid {
-    border-color: #dc3545;
-    box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+/* Custom scrollbar for webkit browsers */
+::-webkit-scrollbar {
+    width: 8px;
 }
 
-.invalid-feedback {
-    display: block;
-    color: #dc3545;
-    font-size: 0.875em;
-    margin-top: 0.25rem;
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
 } 

@@ -1,13 +1,13 @@
 """FastAPI application for Product CRUD operations."""
-from typing import List
+from typing import List, Optional
 import uvicorn
 
-from fastapi import FastAPI, HTTPException, Request, Form
+from fastapi import FastAPI, HTTPException, Request, Form, Query
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, RedirectResponse
 
-from models import Product, ProductCreate, ProductUpdate
+from models import Product, ProductCreate, ProductUpdate, PaginatedResponse
 from database import db
 
 app = FastAPI(
@@ -43,9 +43,35 @@ def api_root():
 
 
 @app.get("/products", response_model=List[Product])
-def get_products():
-    """Get all products"""
-    return db.get_all_products()
+def get_products(
+    page: Optional[int] = Query(None, ge=1, description="Page number (starts from 1)"),
+    limit: Optional[int] = Query(None, ge=1, le=100, description="Number of items per page (max 100)")
+):
+    """Get all products with optional pagination"""
+    if page is not None or limit is not None:
+        # If pagination parameters are provided, return paginated response
+        page = page or 1
+        limit = limit or 10
+        paginated_result = db.get_products_paginated(page=page, limit=limit)
+        return paginated_result.items
+    else:
+        # Return all products for backward compatibility
+        return db.get_all_products()
+
+
+@app.get("/products/paginated", response_model=PaginatedResponse[Product])
+def get_products_paginated(
+    page: int = Query(1, ge=1, description="Page number (starts from 1)"),
+    limit: int = Query(10, ge=1, le=100, description="Number of items per page (max 100)")
+):
+    """Get products with pagination metadata"""
+    return db.get_products_paginated(page=page, limit=limit)
+
+
+@app.get("/products/new", response_class=HTMLResponse)
+def new_product_page(request: Request):
+    """New product page"""
+    return templates.TemplateResponse("new.html", {"request": request})
 
 
 @app.get("/products/new", response_class=HTMLResponse)
@@ -162,19 +188,91 @@ def edit_product_page(request: Request, product_id: int):
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     return templates.TemplateResponse("edit.html", {"request": request, "product": product})
+  
+@app.get("/products/new", response_class=HTMLResponse)
+def new_product_page(request: Request):
+    """New product page"""
+    return templates.TemplateResponse("new.html", {"request": request})
 
 
-# TODO: Add search endpoint with AI-powered features
-# @app.get("/products/search")
-# def search_products(query: str):
-#     """Search products using AI-powered search"""
-#     pass
+@app.get("/api/search", response_model=List[Product])
+def search_products_api(
+    query: Optional[str] = None,
+    category: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    in_stock: Optional[bool] = None,
+    tags: Optional[str] = None
+):
+    """Search products using various criteria"""
+    tag_list = [tag.strip() for tag in tags.split(",") if tag.strip()] if tags else None
+    
+    results = db.search_products(
+        query=query,
+        category=category,
+        min_price=min_price,
+        max_price=max_price,
+        in_stock=in_stock,
+        tags=tag_list
+    )
+    return results
 
-# TODO: Add product recommendations endpoint
-# @app.get("/products/{product_id}/recommendations")
-# def get_product_recommendations(product_id: int):
-#     """Get AI-powered product recommendations"""
-#     pass
+@app.get("/search", response_class=HTMLResponse)
+def search_products_page(
+    request: Request,
+    query: Optional[str] = None,
+    category: Optional[str] = None,
+    min_price: Optional[float] = None,
+    max_price: Optional[float] = None,
+    in_stock: Optional[bool] = None,
+    tags: Optional[str] = None
+):
+    """Search products page with filters"""
+    tag_list = [tag.strip() for tag in tags.split(",") if tag.strip()] if tags else None
+    
+    # Get search results
+    if any([query, category, min_price, max_price, in_stock is not None, tag_list]):
+        products = db.search_products(
+            query=query,
+            category=category,
+            min_price=min_price,
+            max_price=max_price,
+            in_stock=in_stock,
+            tags=tag_list
+        )
+    else:
+        products = db.get_all_products()
+    
+    # Get filter options
+    categories = db.get_categories()
+    all_tags = db.get_all_tags()
+    
+    return templates.TemplateResponse("search.html", {
+        "request": request,
+        "products": products,
+        "categories": categories,
+        "all_tags": all_tags,
+        "search_params": {
+            "query": query or "",
+            "category": category or "",
+            "min_price": min_price,
+            "max_price": max_price,
+            "in_stock": in_stock,
+            "tags": tags or ""
+        }
+    })
+
+
+@app.get("/api/categories")
+def get_categories():
+    """Get all product categories"""
+    return {"categories": db.get_categories()}
+
+
+@app.get("/api/tags")
+def get_tags():
+    """Get all product tags"""
+    return {"tags": db.get_all_tags()}
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)
