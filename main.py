@@ -74,6 +74,12 @@ def new_product_page(request: Request):
     return templates.TemplateResponse("new.html", {"request": request})
 
 
+@app.get("/products/new", response_class=HTMLResponse)
+def new_product_page(request: Request):
+    """New product page"""
+    return templates.TemplateResponse("new.html", {"request": request})
+
+
 @app.get("/products/{product_id}", response_model=Product)
 def get_product(product_id: int):
     """Get a specific product by ID"""
@@ -182,7 +188,7 @@ def edit_product_page(request: Request, product_id: int):
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     return templates.TemplateResponse("edit.html", {"request": request, "product": product})
-
+  
 @app.get("/products/new", response_class=HTMLResponse)
 def new_product_page(request: Request):
     """New product page"""
