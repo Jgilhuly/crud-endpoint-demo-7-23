@@ -164,6 +164,12 @@ def new_product_page(request: Request):
     return templates.TemplateResponse("new.html", {"request": request})
 
 
+@app.get("/privacy", response_class=HTMLResponse)
+def privacy_page(request: Request):
+    """Privacy policy page"""
+    return templates.TemplateResponse("privacy.html", {"request": request})
+
+
 # TODO: Add search endpoint with AI-powered features
 # @app.get("/products/search")
 # def search_products(query: str):

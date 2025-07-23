@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Privacy Policy - Product CRUD Demo{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <h1 class="mb-4">Privacy Policy</h1>
+        
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Information We Collect</h5>
+                <p class="card-text">We collect information you provide directly to us, such as when you create or modify products in our system.</p>
+                
+                <h5 class="card-title mt-4">How We Use Your Information</h5>
+                <p class="card-text">We use the information we collect to provide, maintain, and improve our product management services.</p>
+                
+                <h5 class="card-title mt-4">Information Sharing</h5>
+                <p class="card-text">We do not sell, trade, or otherwise transfer your personal information to third parties without your consent.</p>
+                
+                <h5 class="card-title mt-4">Data Security</h5>
+                <p class="card-text">We implement appropriate security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction.</p>
+                
+                <h5 class="card-title mt-4">Contact Us</h5>
+                <p class="card-text">If you have any questions about this Privacy Policy, please contact us through our support channels.</p>
+                
+                <p class="text-muted mt-4"><small>Last updated: {{ current_date or "January 2024" }}</small></p>
+            </div>
+        </div>
+        
+        <div class="mt-3">
+            <a href="/" class="btn btn-secondary">Back to Products</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
