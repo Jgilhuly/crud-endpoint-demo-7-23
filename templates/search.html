@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Search Products - Product CRUD Demo{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Search Products</h1>
+        
+        <!-- Search Form -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Search Filters</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="/search" id="searchForm">
+                    <div class="row">
+                        <!-- Text Search -->
+                        <div class="col-md-6 mb-3">
+                            <label for="query" class="form-label">Search Term</label>
+                            <input type="text" class="form-control" id="query" name="query" 
+                                   value="{{ search_params.query }}" 
+                                   placeholder="Search by name or description...">
+                        </div>
+                        
+                        <!-- Category Filter -->
+                        <div class="col-md-6 mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-select" id="category" name="category">
+                                <option value="">All Categories</option>
+                                {% for cat in categories %}
+                                <option value="{{ cat }}" 
+                                        {% if search_params.category == cat %}selected{% endif %}>
+                                    {{ cat }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <!-- Price Range -->
+                        <div class="col-md-3 mb-3">
+                            <label for="min_price" class="form-label">Min Price ($)</label>
+                            <input type="number" class="form-control" id="min_price" name="min_price" 
+                                   value="{{ search_params.min_price or '' }}" 
+                                   step="0.01" min="0" placeholder="0.00">
+                        </div>
+                        
+                        <div class="col-md-3 mb-3">
+                            <label for="max_price" class="form-label">Max Price ($)</label>
+                            <input type="number" class="form-control" id="max_price" name="max_price" 
+                                   value="{{ search_params.max_price or '' }}" 
+                                   step="0.01" min="0" placeholder="999.99">
+                        </div>
+                        
+                        <!-- Stock Status -->
+                        <div class="col-md-3 mb-3">
+                            <label for="in_stock" class="form-label">Stock Status</label>
+                            <select class="form-select" id="in_stock" name="in_stock">
+                                <option value="">All Items</option>
+                                <option value="true" 
+                                        {% if search_params.in_stock == true %}selected{% endif %}>
+                                    In Stock Only
+                                </option>
+                                <option value="false" 
+                                        {% if search_params.in_stock == false %}selected{% endif %}>
+                                    Out of Stock Only
+                                </option>
+                            </select>
+                        </div>
+                        
+                        <!-- Tags -->
+                        <div class="col-md-3 mb-3">
+                            <label for="tags" class="form-label">Tags</label>
+                            <input type="text" class="form-control" id="tags" name="tags" 
+                                   value="{{ search_params.tags }}" 
+                                   placeholder="e.g., wireless, premium"
+                                   data-toggle="tooltip" 
+                                   title="Enter tags separated by commas">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary me-2">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary" id="clearFilters">
+                                <i class="fas fa-times"></i> Clear Filters
+                            </button>
+                            <a href="/" class="btn btn-outline-primary ms-2">
+                                <i class="fas fa-list"></i> View All Products
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Search Results Summary -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="mb-0">Search Results</h5>
+                <small class="text-muted">Found {{ products|length }} product(s)</small>
+            </div>
+        </div>
+        
+
+        
+        <!-- Search Results -->
+        <div id="resultsContainer">
+            {% if products %}
+            <div class="row" id="gridResults">
+                {% for product in products %}
+                <div class="col-md-6 col-lg-4 mb-4 product-card">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ product.name }}</h5>
+                            <p class="card-text">{{ product.description }}</p>
+                            <div class="mb-2">
+                                <span class="badge bg-primary">{{ product.category }}</span>
+                                {% if product.in_stock %}
+                                <span class="badge bg-success">In Stock</span>
+                                {% else %}
+                                <span class="badge bg-danger">Out of Stock</span>
+                                {% endif %}
+                            </div>
+                            <div class="mb-2">
+                                <strong class="text-primary">${{ "%.2f"|format(product.price) }}</strong>
+                            </div>
+                            {% if product.tags %}
+                            <div class="mb-3">
+                                {% for tag in product.tags %}
+                                <span class="badge bg-secondary me-1">{{ tag }}</span>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            <div class="d-flex gap-2">
+                                <a href="/products/{{ product.id }}/edit" class="btn btn-outline-primary btn-sm">Edit</a>
+                                <form method="POST" action="/products/{{ product.id }}/delete" class="d-inline" 
+                                      onsubmit="return confirm('Are you sure you want to delete this product?')">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card-footer text-muted">
+                            <small>Created: {{ product.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                <h3 class="text-muted">No products found</h3>
+                <p class="text-muted">Try adjusting your search criteria or <a href="/products/new">add a new product</a>.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Clear filters functionality
+    document.getElementById('clearFilters').addEventListener('click', function() {
+        document.getElementById('searchForm').reset();
+        window.location.href = '/search';
+    });
+    
+    // Real-time search functionality
+    const searchInput = document.getElementById('query');
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            // Optional: implement real-time search here
+        }, 500);
+    });
+});
+</script>
+{% endblock %}
