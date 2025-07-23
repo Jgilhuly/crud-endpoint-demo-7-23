@@ -1,0 +1,20 @@
+{
+    "mcpServers": {
+      "Linear": {
+        "url": "https://mcp.linear.app/sse"
+      },
+      "Snowflake": {
+        "command": "uvx",
+        "args": [
+          "mcp_snowflake_server",
+          "--account", "",
+          "--warehouse", "COMPUTE_WH",
+          "--user", "jgilhuly",
+          "--password", "",
+          "--role", "ACCOUNTADMIN",
+          "--database", "RAW",
+          "--schema", "JAFFLE_SHOP"
+        ]
+      }
+    }
+  }
