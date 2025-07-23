@@ -1,8 +1,9 @@
 """Database module for in-memory product storage."""
 from typing import List, Optional
 from datetime import datetime
+import math
 
-from models import Product, ProductCreate, ProductUpdate
+from models import Product, ProductCreate, ProductUpdate, PaginatedResponse
 
 
 class InMemoryDatabase:
@@ -77,6 +78,35 @@ class InMemoryDatabase:
     def get_all_products(self) -> List[Product]:
         """Get all products from the database."""
         return self.products
+
+    def get_products_paginated(self, page: int = 1, limit: int = 10) -> PaginatedResponse[Product]:
+        """Get products with pagination."""
+        # Validate parameters
+        if page < 1:
+            page = 1
+        if limit < 1:
+            limit = 10
+        if limit > 100:  # Limit maximum page size
+            limit = 100
+            
+        total = len(self.products)
+        total_pages = math.ceil(total / limit) if total > 0 else 1
+        
+        # Calculate offset
+        offset = (page - 1) * limit
+        
+        # Get paginated items
+        items = self.products[offset:offset + limit]
+        
+        return PaginatedResponse[Product](
+            items=items,
+            total=total,
+            page=page,
+            limit=limit,
+            total_pages=total_pages,
+            has_next=page < total_pages,
+            has_prev=page > 1
+        )
 
     def get_product(self, product_id: int) -> Optional[Product]:
         """Get a specific product by ID."""
